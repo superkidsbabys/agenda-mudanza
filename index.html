@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Mudanza · Bibiana</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#2b2620">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap');
+
+:root{
+  --paper: #f3ede0;
+  --paper-dark: #e8dfcb;
+  --ink: #2b2620;
+  --ink-soft: #6b6252;
+  --stamp: #a8332a;
+  --money: #2f6b4f;
+  --money-soft: #dce8e0;
+  --line: #cabf9f;
+  --card: #fffdf8;
+  --danger: #a8332a;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(43,38,32,0.06) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'JetBrains Mono', monospace;
+  min-height:100vh;
+  padding:28px 16px 60px;
+}
+.wrap{max-width:560px;margin:0 auto;}
+
+header.top{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:22px;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:12px;
+}
+header.top .eyebrow{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+header.top h1{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:26px;
+  margin:2px 0 0;
+}
+
+.ledger{
+  background:var(--card);
+  border:1.5px solid var(--ink);
+  border-radius:4px;
+  padding:18px 20px;
+  margin-bottom:22px;
+  box-shadow:3px 3px 0 rgba(43,38,32,0.12);
+}
+.ledger-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:7px 0;
+  font-size:14px;
+}
+.ledger-row + .ledger-row{border-top:1px dashed var(--line);}
+.ledger-row .label{color:var(--ink-soft);}
+.ledger-row .val{font-weight:700;}
+.ledger-row.total .val{
+  font-family:'Fraunces', serif;
+  font-size:22px;
+  color:var(--money);
+}
+.ledger-row.total.negativo .val{color:var(--danger);}
+
+.btn{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.03em;
+  border:1.5px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  border-radius:3px;
+  padding:11px 16px;
+  cursor:pointer;
+  width:100%;
+  transition:transform .08s ease;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn.secondary{
+  background:transparent;
+  color:var(--ink);
+}
+.btn.small{width:auto;padding:8px 12px;font-size:12px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+.setup-card{
+  background:var(--card);
+  border:1.5px solid var(--ink);
+  border-radius:4px;
+  padding:22px 20px;
+  box-shadow:3px 3px 0 rgba(43,38,32,0.12);
+  text-align:center;
+}
+.setup-card p{color:var(--ink-soft);font-size:13px;line-height:1.5;}
+
+label{
+  display:block;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--ink-soft);
+  margin:14px 0 5px;
+}
+label:first-of-type{margin-top:0;}
+input[type=text], input[type=number]{
+  width:100%;
+  font-family:'JetBrains Mono', monospace;
+  font-size:15px;
+  padding:10px 11px;
+  border:1.5px solid var(--line);
+  border-radius:3px;
+  background:#fff;
+  color:var(--ink);
+}
+input:focus{outline:2px solid var(--money);outline-offset:1px;border-color:var(--money);}
+
+.upload-box{
+  border:2px dashed var(--line);
+  border-radius:4px;
+  padding:16px;
+  text-align:center;
+  cursor:pointer;
+  background:#fafaf5;
+  color:var(--ink-soft);
+  font-size:12px;
+}
+.upload-box.filled{border-color:var(--money);color:var(--ink);}
+.upload-box img{max-width:100%;max-height:160px;border-radius:3px;margin-top:8px;display:block;margin-left:auto;margin-right:auto;}
+input[type=file]{display:none;}
+
+.section-title{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--ink-soft);
+  margin:26px 0 10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--line);}
+
+.ticket{
+  background:var(--card);
+  border:1.5px solid var(--ink);
+  border-radius:4px;
+  padding:14px 16px;
+  margin-bottom:12px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  box-shadow:2px 2px 0 rgba(43,38,32,0.10);
+}
+.ticket .thumb{
+  width:52px;height:52px;border-radius:3px;object-fit:cover;
+  border:1px solid var(--line); flex-shrink:0; background:var(--paper-dark);
+}
+.ticket .info{flex:1;min-width:0;}
+.ticket .info .nombre{font-weight:700;font-size:14px;}
+.ticket .info .meta{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.ticket .info .monto{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:16px;
+  color:var(--money);
+  margin-top:4px;
+}
+.ticket .actions{display:flex;flex-direction:column;gap:6px;}
+
+.empty{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:12px;
+  padding:30px 10px;
+  border:1.5px dashed var(--line);
+  border-radius:4px;
+}
+
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(43,38,32,0.5);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:50;
+}
+.modal{
+  background:var(--paper);
+  width:100%;max-width:560px;
+  border-radius:12px 12px 0 0;
+  border:1.5px solid var(--ink);
+  border-bottom:none;
+  padding:22px 20px 26px;
+  max-height:90vh;
+  overflow-y:auto;
+}
+.modal h2{font-family:'Fraunces', serif;font-size:20px;margin:0 0 4px;}
+.modal .close{
+  float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-soft);
+  font-family:'JetBrains Mono', monospace;
+}
+.error-msg{
+  color:var(--danger);
+  font-size:12px;
+  margin-top:10px;
+  display:none;
+}
+
+/* Hidden canvas render target for the receipt image */
+#renderStage{position:fixed;left:-9999px;top:0;}
+
+.stamp-hint{
+  font-size:11px;color:var(--ink-soft);text-align:center;margin-top:8px;
+}
+.toast{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;
+  font-size:12px;box-shadow:2px 2px 0 rgba(0,0,0,0.2);
+  opacity:0;transition:opacity .25s ease;pointer-events:none;
+  z-index:100;
+}
+.toast.show{opacity:1;}
+
+.loading{opacity:.5;pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">Fondo de Bibiana</div>
+      <h1>Agenda de Mudanza</h1>
+    </div>
+    <button class="btn small secondary" id="resetBtn" style="display:none;width:auto;">Reiniciar</button>
+  </header>
+
+  <div id="app"></div>
+
+</div>
+
+<div id="renderStage"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'mudanza-fondo';
+let state = { total: null, comprobantes: [] };
+let pendingImage = null; // dataURL of proof-of-transfer image for the form in progress
+
+const app = document.getElementById('app');
+const resetBtn = document.getElementById('resetBtn');
+
+function money(n){
+  return '$ ' + Number(n).toLocaleString('es-CO', {maximumFractionDigits:0});
+}
+function todayStr(){
+  return new Date().toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'});
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      state = JSON.parse(res.value);
+    }
+  }catch(e){
+    // no data yet, keep default state
+  }
+  render();
+}
+
+async function saveState(){
+  try{
+    const res = await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    if(!res){ showToast('No se pudo guardar. Intenta de nuevo.'); }
+  }catch(e){
+    showToast('Error guardando los datos.');
+  }
+}
+
+function saldoDisponible(){
+  const pagado = state.comprobantes.reduce((s,c)=>s+Number(c.monto),0);
+  return (state.total||0) - pagado;
+}
+
+function render(){
+  if(state.total === null){
+    renderSetup();
+    resetBtn.style.display = 'none';
+    return;
+  }
+  resetBtn.style.display = 'block';
+  const pagado = state.comprobantes.reduce((s,c)=>s+Number(c.monto),0);
+  const saldo = saldoDisponible();
+
+  app.innerHTML = `
+    <div class="ledger">
+      <div class="ledger-row"><span class="label">Total recibido</span><span class="val">${money(state.total)}</span></div>
+      <div class="ledger-row"><span class="label">Total pagado</span><span class="val">${money(pagado)}</span></div>
+      <div class="ledger-row total ${saldo<0?'negativo':''}"><span class="label">Saldo disponible</span><span class="val">${money(saldo)}</span></div>
+    </div>
+
+    <button class="btn" id="addBtn">+ Registrar nuevo pago</button>
+
+    <div class="section-title">Comprobantes (${state.comprobantes.length})</div>
+    <div id="lista"></div>
+  `;
+
+  const lista = document.getElementById('lista');
+  if(state.comprobantes.length === 0){
+    lista.innerHTML = `<div class="empty">Todavía no hay pagos registrados.<br>Cada comprobante que agregues queda aquí, organizado.</div>`;
+  }else{
+    lista.innerHTML = '';
+    [...state.comprobantes].reverse().forEach((c)=>{
+      const div = document.createElement('div');
+      div.className = 'ticket';
+      div.innerHTML = `
+        ${c.imagen ? `<img class="thumb" src="${c.imagen}">` : `<div class="thumb"></div>`}
+        <div class="info">
+          <div class="nombre">${escapeHtml(c.nombre)}</div>
+          <div class="meta">CC ${escapeHtml(c.cedula)} · ${escapeHtml(c.trabajo)}</div>
+          <div class="meta">${c.fecha}</div>
+          <div class="monto">${money(c.monto)}</div>
+        </div>
+        <div class="actions">
+          <button class="btn small secondary" data-download="${c.id}">Descargar</button>
+          <button class="btn small secondary" data-delete="${c.id}" style="color:var(--danger);border-color:var(--danger);">Borrar</button>
+        </div>
+      `;
+      lista.appendChild(div);
+    });
+  }
+
+  document.getElementById('addBtn').onclick = openAddModal;
+  lista.querySelectorAll('[data-download]').forEach(b=>{
+    b.onclick = ()=>generarComprobanteImagen(b.dataset.download);
+  });
+  lista.querySelectorAll('[data-delete]').forEach(b=>{
+    b.onclick = ()=>eliminarComprobante(b.dataset.delete);
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderSetup(){
+  app.innerHTML = `
+    <div class="setup-card">
+      <div class="eyebrow" style="margin-bottom:6px;">Primer paso</div>
+      <p>¿Cuánto dinero te dejó Bibiana para la mudanza?<br>De ahí se irá descontando cada pago que registres.</p>
+      <label for="totalInput">Monto total</label>
+      <input type="number" id="totalInput" placeholder="Ej: 800000" inputmode="numeric">
+      <button class="btn" id="startBtn" style="margin-top:16px;">Empezar a registrar</button>
+    </div>
+  `;
+  document.getElementById('startBtn').onclick = ()=>{
+    const v = Number(document.getElementById('totalInput').value);
+    if(!v || v<=0){ showToast('Ingresa un monto válido.'); return; }
+    state.total = v;
+    state.comprobantes = [];
+    saveState();
+    render();
+  };
+}
+
+function openAddModal(){
+  pendingImage = null;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <button class="close" id="closeModal">&times;</button>
+      <h2>Nuevo comprobante</h2>
+      <div class="eyebrow">Saldo disponible: ${money(saldoDisponible())}</div>
+
+      <label for="f_nombre">Nombre de la persona</label>
+      <input type="text" id="f_nombre" placeholder="Nombre completo">
+
+      <label for="f_cedula">Cédula</label>
+      <input type="text" id="f_cedula" placeholder="Número de cédula" inputmode="numeric">
+
+      <label for="f_trabajo">Trabajo que realizó</label>
+      <input type="text" id="f_trabajo" placeholder="Ej: Transporte de muebles">
+
+      <label for="f_monto">Monto pagado</label>
+      <input type="number" id="f_monto" placeholder="Ej: 150000" inputmode="numeric">
+
+      <label>Foto del comprobante de envío</label>
+      <div class="upload-box" id="uploadBox">
+        Toca para subir la captura de la transferencia
+        <input type="file" id="f_imagen" accept="image/*">
+      </div>
+
+      <div class="error-msg" id="errMsg"></div>
+
+      <button class="btn" id="saveComprobante" style="margin-top:18px;">Guardar comprobante</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.getElementById('closeModal').onclick = ()=>overlay.remove();
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+
+  const uploadBox = document.getElementById('uploadBox');
+  const fileInput = document.getElementById('f_imagen');
+  uploadBox.onclick = ()=>fileInput.click();
+  fileInput.onchange = ()=>{
+    const file = fileInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      pendingImage = e.target.result;
+      uploadBox.classList.add('filled');
+      uploadBox.innerHTML = `Comprobante cargado ✓<img src="${pendingImage}">` ;
+      uploadBox.appendChild(fileInput);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  document.getElementById('saveComprobante').onclick = async ()=>{
+    const nombre = document.getElementById('f_nombre').value.trim();
+    const cedula = document.getElementById('f_cedula').value.trim();
+    const trabajo = document.getElementById('f_trabajo').value.trim();
+    const monto = Number(document.getElementById('f_monto').value);
+    const errBox = document.getElementById('errMsg');
+
+    if(!nombre || !cedula || !trabajo || !monto || monto<=0){
+      errBox.textContent = 'Completa todos los campos con un monto válido.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    const nuevo = {
+      id: 'c' + Date.now(),
+      nombre, cedula, trabajo, monto,
+      fecha: todayStr(),
+      imagen: pendingImage || null
+    };
+    state.comprobantes.push(nuevo);
+    await saveState();
+    overlay.remove();
+    render();
+    showToast('Comprobante guardado');
+  };
+}
+
+async function eliminarComprobante(id){
+  if(!confirm('¿Borrar este comprobante? Esta acción no se puede deshacer.')) return;
+  state.comprobantes = state.comprobantes.filter(c=>c.id!==id);
+  await saveState();
+  render();
+  showToast('Comprobante borrado');
+}
+
+document.getElementById('resetBtn').onclick = async ()=>{
+  if(!confirm('Esto borra el monto total y todos los comprobantes. ¿Continuar?')) return;
+  state = { total:null, comprobantes:[] };
+  await saveState();
+  render();
+};
+
+// ---- Generación de la imagen resumen del comprobante ----
+function generarComprobanteImagen(id){
+  const c = state.comprobantes.find(x=>x.id===id);
+  if(!c) return;
+
+  const W = 640;
+  const hasImg = !!c.imagen;
+  const imgH = hasImg ? 320 : 0;
+  const H = 520 + imgH;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const draw = (proofImg)=>{
+    // fondo papel
+    ctx.fillStyle = '#f3ede0';
+    ctx.fillRect(0,0,W,H);
+    // textura sutil de puntos
+    ctx.fillStyle = 'rgba(43,38,32,0.05)';
+    for(let y=0;y<H;y+=18){ for(let x=0;x<W;x+=18){ ctx.fillRect(x,y,1,1); } }
+
+    // borde
+    ctx.strokeStyle = '#2b2620';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(14,14,W-28,H-28);
+
+    // header
+    ctx.fillStyle = '#2b2620';
+    ctx.font = '600 30px Georgia, serif';
+    ctx.fillText('Comprobante de pago', 40, 66);
+    ctx.font = '500 12px monospace';
+    ctx.fillStyle = '#6b6252';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('FONDO DE MUDANZA — BIBIANA', 40, 86);
+
+    ctx.strokeStyle = '#cabf9f';
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(40,100); ctx.lineTo(W-40,100); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // campos
+    let y = 140;
+    const field = (label, value)=>{
+      ctx.fillStyle = '#6b6252';
+      ctx.font = '600 11px monospace';
+      ctx.fillText(label.toUpperCase(), 40, y);
+      ctx.fillStyle = '#2b2620';
+      ctx.font = '500 20px monospace';
+      ctx.fillText(value, 40, y+26);
+      y += 58;
+    };
+    field('Nombre', c.nombre);
+    field('Cedula', c.cedula);
+    field('Trabajo realizado', c.trabajo);
+
+    // monto destacado
+    ctx.fillStyle = '#6b6252';
+    ctx.font = '600 11px monospace';
+    ctx.fillText('MONTO PAGADO', 40, y);
+    ctx.fillStyle = '#2f6b4f';
+    ctx.font = '600 34px Georgia, serif';
+    ctx.fillText('$ ' + Number(c.monto).toLocaleString('es-CO'), 40, y+38);
+    y += 60;
+
+    ctx.fillStyle = '#8a8171';
+    ctx.font = '400 12px monospace';
+    ctx.fillText('Fecha: ' + c.fecha, 40, y);
+    y += 20;
+    ctx.fillText('Saldo restante del fondo: $' + saldoDisponible().toLocaleString('es-CO'), 40, y);
+    y += 24;
+
+    // imagen adjunta
+    if(proofImg){
+      ctx.strokeStyle = '#cabf9f';
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(40,y+10); ctx.lineTo(W-40,y+10); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#6b6252';
+      ctx.font = '600 11px monospace';
+      ctx.fillText('COMPROBANTE DE ENVIO', 40, y+34);
+
+      const maxW = W-80, maxH = imgH-50;
+      let iw = proofImg.width, ih = proofImg.height;
+      const scale = Math.min(maxW/iw, maxH/ih);
+      iw *= scale; ih *= scale;
+      const ix = (W-iw)/2;
+      ctx.drawImage(proofImg, ix, y+46, iw, ih);
+    }
+
+    // sello PAGADO
+    ctx.save();
+    ctx.translate(W-130, 150);
+    ctx.rotate(-0.28);
+    ctx.strokeStyle = '#a8332a';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(-58,-20,116,40);
+    ctx.fillStyle = '#a8332a';
+    ctx.font = '700 20px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('PAGADO', 0, 7);
+    ctx.restore();
+    ctx.textAlign = 'left';
+
+    // descargar
+    const link = document.createElement('a');
+    link.download = 'comprobante-' + c.nombre.replace(/\s+/g,'_') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Imagen generada');
+  };
+
+  if(hasImg){
+    const img = new Image();
+    img.onload = ()=>draw(img);
+    img.onerror = ()=>draw(null);
+    img.src = c.imagen;
+  }else{
+    draw(null);
+  }
+}
+
+loadState();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
