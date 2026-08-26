@@ -106,6 +106,18 @@ header.top h1{
 .btn.small{width:auto;padding:8px 12px;font-size:12px;}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
 
+.btn-row{display:flex;gap:10px;}
+.btn-row .btn{flex:1;}
+
+.fondos-list{margin-top:8px;}
+.fondo-row{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--ink-soft);
+  padding:5px 0;
+}
+.fondo-row + .fondo-row{border-top:1px dashed var(--line);}
+.fondo-row .monto{color:var(--money);font-weight:700;}
+
 .setup-card{
   background:var(--card);
   border:1.5px solid var(--ink);
@@ -292,6 +304,11 @@ async function loadState(){
   }catch(e){
     // no data yet, keep default state
   }
+  // migración: si ya existía un total fijo sin historial de aportes, lo convertimos
+  if(state.total !== null && !state.aportes){
+    state.aportes = [{ monto: state.total, fecha: todayStr(), nota: 'Fondo inicial' }];
+  }
+  if(!state.aportes) state.aportes = [];
   render();
 }
 
@@ -326,7 +343,18 @@ function render(){
       <div class="ledger-row total ${saldo<0?'negativo':''}"><span class="label">Saldo disponible</span><span class="val">${money(saldo)}</span></div>
     </div>
 
-    <button class="btn" id="addBtn">+ Registrar nuevo pago</button>
+    <div class="btn-row">
+      <button class="btn" id="addBtn">+ Nuevo pago</button>
+      <button class="btn secondary" id="addFondoBtn">+ Agregar fondo</button>
+    </div>
+
+    ${state.aportes.length > 1 ? `
+    <div class="section-title">Historial de fondos</div>
+    <div class="ledger fondos-list">
+      ${state.aportes.map(a=>`
+        <div class="fondo-row"><span>${a.nota} · ${a.fecha}</span><span class="monto">${money(a.monto)}</span></div>
+      `).join('')}
+    </div>` : ''}
 
     <div class="section-title">Comprobantes (${state.comprobantes.length})</div>
     <div id="lista"></div>
@@ -358,6 +386,7 @@ function render(){
   }
 
   document.getElementById('addBtn').onclick = openAddModal;
+  document.getElementById('addFondoBtn').onclick = openAddFondoModal;
   lista.querySelectorAll('[data-download]').forEach(b=>{
     b.onclick = ()=>generarComprobanteImagen(b.dataset.download);
   });
@@ -387,6 +416,7 @@ function renderSetup(){
     if(!v || v<=0){ showToast('Ingresa un monto válido.'); return; }
     state.total = v;
     state.comprobantes = [];
+    state.aportes = [{ monto: v, fecha: todayStr(), nota: 'Fondo inicial' }];
     saveState();
     render();
   };
@@ -470,6 +500,48 @@ function openAddModal(){
     overlay.remove();
     render();
     showToast('Comprobante guardado');
+  };
+}
+
+function openAddFondoModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <button class="close" id="closeFondoModal">&times;</button>
+      <h2>Agregar fondo</h2>
+      <div class="eyebrow">Saldo actual: ${money(saldoDisponible())}</div>
+
+      <label for="f_montoFondo">¿Cuánto te dejó Bibiana esta vez?</label>
+      <input type="number" id="f_montoFondo" placeholder="Ej: 200000" inputmode="numeric">
+
+      <label for="f_nota">Nota (opcional)</label>
+      <input type="text" id="f_nota" placeholder="Ej: Segundo abono">
+
+      <div class="error-msg" id="errFondoMsg"></div>
+
+      <button class="btn" id="saveFondo" style="margin-top:18px;">Agregar al fondo</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('closeFondoModal').onclick = ()=>overlay.remove();
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+
+  document.getElementById('saveFondo').onclick = async ()=>{
+    const monto = Number(document.getElementById('f_montoFondo').value);
+    const nota = document.getElementById('f_nota').value.trim() || 'Abono adicional';
+    const errBox = document.getElementById('errFondoMsg');
+    if(!monto || monto<=0){
+      errBox.textContent = 'Ingresa un monto válido.';
+      errBox.style.display = 'block';
+      return;
+    }
+    state.total += monto;
+    state.aportes.push({ monto, fecha: todayStr(), nota });
+    await saveState();
+    overlay.remove();
+    render();
+    showToast('Fondo actualizado');
   };
 }
 
